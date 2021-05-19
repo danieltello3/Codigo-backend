@@ -146,4 +146,5 @@ print(libro["tomos"][1])
 print(len(libro['idiomas']))
 
 #4
-print("ruso" in libro["idiomas"])
+for llave in libro["idiomas"]:
+    print("ruso" in libro["idiomas"][llave])
