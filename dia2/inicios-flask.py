@@ -74,6 +74,12 @@ def gestion_producto(id):
     return "ok"
 
 
+@app.route("/productos/buscar")
+def buscar_productos():
+    print(request.args.get("nombre"))
+    return "ok"
+
+
 # debug = True -> cada vez que se hace un cambio  y se guarda, el servidor se reinicia automaticamente
 app.run(debug=True)
 # NOTA! todo codigo que pongamos despues del metodo run, nunca se ejecutara, porque el metodo run() hace que se "colgado" mi programa levantando un servidor
