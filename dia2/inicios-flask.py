@@ -1,9 +1,12 @@
 from flask import Flask, request
-
+from flask_cors import CORS
 # __name__ -> muestra si el archivo en el cual se esta llamando a la clase Flask, es el archivo principal del proyecto, para evitar que la instancia de la clase Flask se pueda crear varias veces(patron Singleton)
 # si estamos en el archivo principal nos imprimira -> __main__, caso contrario imprimira otra cosa
 
 app = Flask(__name__)
+
+# hacerlo de esta manera, hara que todos los valores se seteen a que permita absolutamente todos los origenes, metodos y cabeceras
+CORS(app, methods=['GET', 'POST'], origins=['*'])
 productos = []
 # un decorador es un patron de software que se utiliza para modificar el funcionamiento de una funcion o clase en particular sin la necesidad de emplear otros metodos como la herencia
 
