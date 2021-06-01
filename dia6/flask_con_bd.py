@@ -1,6 +1,7 @@
 from flask import Flask, json, request, jsonify
 from flask_mysqldb import MySQL
 from dotenv import load_dotenv
+import math
 # esto sirve para que si tenemos un archivo .env jale todas las variables como si fuesen variables de entorno
 
 from os import environ
@@ -25,21 +26,63 @@ def gestion_alumnos():
     cursor.execute("SELECT * FROM alumnos")
     # capturo la infromacion a partir de la consulta
     data = cursor.fetchall()
-    print(len(data))
-    print(data[0][2])
     new_data = []
-    for index in range(len(data)):
+    for alumno in data:
         new_data.append({
-            "id": data[index][0],
-            "matricula": data[index][1],
-            "nombre": data[index][2],
-            "apellido": data[index][3],
-            "localidad": data[index][4],
-            "fecha_nacimiento": data[index][5]
+            "id": alumno[0],
+            "matricula": alumno[1],
+            "nombre": alumno[2],
+            "apellido": alumno[3],
+            "localidad": alumno[4],
+            "fecha_nacimiento": alumno[5]
         })
 
     return {
         "data": new_data
+    }
+
+
+@app.route("/alumnos-paginados", methods=['GET'])
+def alumnos_paginados():
+    print(request.args)
+    if(request.args.get('page') and request.args.get('perPage')):
+        # HELPER
+        porPagina = int(request.args.get('perPage'))
+        pagina = int(request.args.get('page'))
+        limit = porPagina
+        offset = (pagina - 1) * porPagina
+        cur = mysql.connection.cursor()
+        cur.execute(f"SELECT * FROM alumnos LIMIT {limit} OFFSET {offset}")
+        # cur.execute("SELECT * FROM alumnos LIMIT %s OFFSET %s" % (limit, offset)) OTRA FORMA
+        resultado = cur.fetchall()
+        print(len(resultado))
+        print(resultado)
+        cur.execute("SELECT COUNT(*) FROM alumnos")
+        total = int(cur.fetchone()[0])
+        itemsPorPagina = porPagina if total >= porPagina else total
+        totalPaginas = math.ceil(total / itemsPorPagina)
+
+        if pagina > 1:
+            paginaPrevia = pagina - 1 if pagina <= totalPaginas else None
+        else:
+            paginaPrevia = None
+
+        if totalPaginas > 1:
+            paginaContinua = pagina + 1 if pagina < totalPaginas else None
+        else:
+            paginaContinua = None
+
+    return {
+        "data": resultado,
+        "paginacion": {
+            "total": total,  # total de pdatos
+            "porPagina": itemsPorPagina,  # pagina actual
+            # pagina previa
+            "paginaPrevia": f"{request.host_url}alumnos-paginados?page={paginaPrevia}&perPage={itemsPorPagina}" if paginaPrevia else None,
+            # pagina continua
+            "paginaContinua": f"{request.host_url}alumnos-paginados?page={paginaContinua}&perPage={itemsPorPagina}" if paginaContinua else None,
+            "totalPaginas": totalPaginas,  # total paginas
+        }
     }
 
 
