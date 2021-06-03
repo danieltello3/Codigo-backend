@@ -1,8 +1,11 @@
 # un controlador es el comportamiento que va a tener mi API cuando se llame a determina ruta
 
 # /postres GET => mostrar los postres
+from typing_extensions import Required
 from flask_restful import Resource, reqparse
+from sqlalchemy.orm import base
 from models.postre import PostreModel
+from config.conexion_bd import base_de_datos
 
 # serializer (serializador)
 serializerPostres = reqparse.RequestParser(bundle_errors=True)
@@ -26,11 +29,115 @@ serializerPostres.add_argument(
 
 
 class PostresController(Resource):
+    """Sera la encargada de la gestion de todos los postres y su creacion"""
+
     def get(self):
-        print(PostreModel.query.all())
-        return 'ok'
+        # SELECT * FROM postres
+        postres = PostreModel.query.all()
+        resultado = []
+        for postre in postres:
+            print(postre.json())
+            resultado.append(postre.json())
+        return {
+            'success': True,
+            'content': resultado,
+            'message': None
+        }
 
     def post(self):
         data = serializerPostres.parse_args()
-        print(data)
+        nuevoPostre = PostreModel(nombre=data.get(
+            'nombre'), porcion=data.get('porcion'))
+        print(nuevoPostre)
+        nuevoPostre.save()
+
+        return {
+            'success': True,
+            'content': nuevoPostre.json(),
+            'message': 'Postre creado exitosamente'
+        }, 201
+
+
+class PostreController(Resource):
+    def get(self, id):
+        # documentacion nativa de SQLAlchemy
+        postre = base_de_datos.session.query(
+            PostreModel).filter_by(postreID=id).first()
+        # documentacion de Flask SQLAlchemy
+        # postre = PostreModel.query.filter_by(postreID=id).first()
+        print(postre)
+        return ({
+            'success': True,
+            'content': postre.json(),
+            'message': None
+        }, 200) if postre else ({
+            'success': True,
+            'content': None,
+            'message': 'postre no encontrado'
+        }, 404)
+
+    def put(self, id):
+        postre = base_de_datos.session.query(
+            PostreModel).filter_by(postreID=id).first()
+        if postre:
+            data = serializerPostres.parse_args()
+            postre.postreNombre = data.get('nombre')
+            postre.postrePorcion = data.get('porcion')
+            postre.save()
+
+            return {
+                'success': True,
+                'content': postre.json(),
+                'message': 'Postre actualizado correctamente'
+            }, 201
+        else:
+            return {
+                'success': False,
+                'content': None,
+                'message': 'Postre no encontrado'
+            }, 404
+
+    def delete(self, id):
+        # METODO 1
+        # postre = base_de_datos.session.query(
+        #     PostreModel).filter_by(postreID=id).delete()
+        # base_de_datos.session.commit()
+        # print(postre)
+        # metodo 2
+        postre = base_de_datos.session.query(
+            PostreModel).filter_by(postreID=id).first()
+        if postre:
+            postre.delete()
+            return {
+                'success': True,
+                'content': postre.json(),
+                'message': 'Postre eliminado exitosamente'
+            }
+        else:
+            return {
+                'success': False,
+                'content': None,
+                'message': 'Postre no existe'
+            }
+
+
+class BusquedaPostre(Resource):
+    serializerBusqueda = reqparse.RequestParser()
+    # se van a ubicar en el query string
+    serializerBusqueda.add_argument(
+        'nombre',
+        type=str,
+        location='args',
+        Required=False,
+    )
+    serializerBusqueda.add_argument(
+        'porcion',
+        type=str,
+        location='args',
+        Required=False,
+    )
+
+    def get(self):
+        filtros = self.serializerBusqueda.parse_args()
+        print(filtros)
         return 'ok'

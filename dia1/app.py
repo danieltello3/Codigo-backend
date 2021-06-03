@@ -1,4 +1,4 @@
-from controllers.postre import PostresController
+from controllers.postre import PostreController, PostresController
 from flask import Flask, request
 from flask_restful import Api
 from dotenv import load_dotenv
@@ -34,6 +34,7 @@ def initial_controller():
 
 # defino las rutas usando Flask restful
 api.add_resource(PostresController, "/postres")
+api.add_resource(PostreController, "/postres/<int:id>")
 
 
 if __name__ == '__main__':
