@@ -1,9 +1,7 @@
 # un controlador es el comportamiento que va a tener mi API cuando se llame a determina ruta
 
 # /postres GET => mostrar los postres
-from typing_extensions import Required
 from flask_restful import Resource, reqparse
-from sqlalchemy.orm import base
 from models.postre import PostreModel
 from config.conexion_bd import base_de_datos
 
@@ -33,6 +31,7 @@ class PostresController(Resource):
 
     def get(self):
         # SELECT * FROM postres
+        # base_de_datos.session.query(PostreModel).all()
         postres = PostreModel.query.all()
         resultado = []
         for postre in postres:
@@ -128,16 +127,43 @@ class BusquedaPostre(Resource):
         'nombre',
         type=str,
         location='args',
-        Required=False,
+        required=False,
     )
     serializerBusqueda.add_argument(
         'porcion',
         type=str,
         location='args',
-        Required=False,
+        required=False,
+        choices=('Familiar', 'Personal', 'Mediano'),
+        help='Opcion invalida, las opciones son Familiar, Personal, Mediano',
     )
+    #from sqlalchemy import or_
+    # base_de_datos.session.query(PostreModel).filter_by(or_(postreNombre = "lalala", postreNombre= "kikiki"))
 
     def get(self):
         filtros = self.serializerBusqueda.parse_args()
-        print(filtros)
-        return 'ok'
+        if filtros.get('nombre') and filtros.get('porcion'):
+            resultado = base_de_datos.session.query(PostreModel).filter_by(
+                postreNombre=filtros.get('nombre'), postrePorcion=filtros.get('porcion')).all()
+
+        elif filtros.get('nombre'):
+            resultado = base_de_datos.session.query(PostreModel).filter_by(
+                postreNombre=filtros.get('nombre')).all()
+
+        elif filtros.get('porcion'):
+            resultado = base_de_datos.session.query(PostreModel).filter_by(
+                postrePorcion=filtros.get('porcion')).all()
+
+        else:
+            return {
+                'message': 'Necesitas dar al menos un parametro'
+            }, 400
+
+        data = []
+        for postre in resultado:
+            data.append(postre.json())
+        return {
+            'success': True,
+            'content': data,
+            'message': None
+        }

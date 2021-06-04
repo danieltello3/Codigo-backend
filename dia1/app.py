@@ -1,13 +1,13 @@
-from controllers.postre import PostreController, PostresController
+from controllers.preparacion import PreparacionesController
+from controllers.postre import BusquedaPostre, PostreController, PostresController
 from flask import Flask, request
 from flask_restful import Api
 from dotenv import load_dotenv
 from os import environ
 from config.conexion_bd import base_de_datos
-from models.postre import PostreModel
-from models.preparacion import PreparacionModel
 from models.ingrediente import IngredienteModel
 from models.receta import RecetaModel
+
 
 load_dotenv()
 
@@ -35,6 +35,8 @@ def initial_controller():
 # defino las rutas usando Flask restful
 api.add_resource(PostresController, "/postres")
 api.add_resource(PostreController, "/postres/<int:id>")
+api.add_resource(BusquedaPostre, "/busqueda_postre")
+api.add_resource(PreparacionesController, "/preparaciones")
 
 
 if __name__ == '__main__':

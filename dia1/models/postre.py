@@ -27,9 +27,8 @@ class PostreModel(base_de_datos.Model):
         return "El postre es {}".format(self.postreNombre)
 
     def save(self):
-        # el metodo session.add crea una nueva sesion en la bd y ademas evita que se creen nuevas sesiones y asi relentizar la conexion a la bd
-        # el metodo add sirve para agregar toda la instancia actual (mi nuevo postre) y corroborar con las columnas de la bd si todo esta correcto
-        # esto ademas crea una transaccion en la cual sirve para agrupar varias sentencias de insert, update, delete
+        # agrega un registro a la bd, pero todavia no lo guarda porque esta trabajandose mediante transacciones, entonces esperara a que se guarde de manera permanente haciendo un commit, o rechazando todos los cambios realizados mediante un rollback
+        # la informacion ya existira en la bd pero en un stage (etapa) volatil
         base_de_datos.session.add(self)
 
         # ahora si todos los pasos de escritura, actualizacion y eliminacion de la bd fueron exitosos entonces se guardaran todos los cambios de manera permanente

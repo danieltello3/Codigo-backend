@@ -1,4 +1,4 @@
-from enum import auto
+
 from sqlalchemy.sql.schema import ForeignKey
 from config.conexion_bd import base_de_datos
 from sqlalchemy import Column, types
