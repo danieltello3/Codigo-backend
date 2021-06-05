@@ -1,3 +1,4 @@
+from controllers.ingrediente import IngredienteController, IngredientesController
 from controllers.preparacion import PreparacionesController
 from controllers.postre import BusquedaPostre, PostreController, PostresController
 from flask import Flask, request
@@ -5,7 +6,7 @@ from flask_restful import Api
 from dotenv import load_dotenv
 from os import environ
 from config.conexion_bd import base_de_datos
-from models.ingrediente import IngredienteModel
+
 from models.receta import RecetaModel
 
 
@@ -36,7 +37,15 @@ def initial_controller():
 api.add_resource(PostresController, "/postres")
 api.add_resource(PostreController, "/postres/<int:id>")
 api.add_resource(BusquedaPostre, "/busqueda_postre")
-api.add_resource(PreparacionesController, "/preparaciones")
+api.add_resource(PreparacionesController, "/preparaciones",
+                 "/preparaciones/<int:postre_id>")
+api.add_resource(IngredientesController, "/ingredientes")
+api.add_resource(IngredienteController, "/ingredientes/<int:id>")
+
+# POST todos / ingredientes
+# GET todos /ingredientes
+# PUT ID /ingredientes/<int:ID>
+# GET ID /ingredientes/<int:ID>
 
 
 if __name__ == '__main__':

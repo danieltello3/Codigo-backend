@@ -45,24 +45,21 @@ class PreparacionesController(Resource):
                     "content": None,
                     "message": f"este numero de orden {data.get('orden')} para el postre {data.get('postre_id')} ya existe"
                 }, 400
+            ultimoOrden = base_de_datos.session.query(PreparacionModel).order_by(
+                PreparacionModel.preparacionOrden.desc()).first()
+            if ultimoOrden.preparacionOrden == data.get('orden') - 1:
+                nuevaPreparacion.save()
+                return{
+                    "success": True,
+                    "content": nuevaPreparacion.json(),
+                    "message": "Preparacion creada exitosamente"
+                }, 201
             else:
-                # print(data.get('orden'))
-                print(base_de_datos.session.query(PreparacionModel).order_by(
-                    PreparacionModel.preparacionOrden.desc()).first().preparacionOrden)
-                if base_de_datos.session.query(PreparacionModel).order_by(PreparacionModel.preparacionOrden.desc()).first().preparacionOrden == data.get('orden') - 1:
-                    nuevaPreparacion.save()
-                    return{
-                        "success": True,
-                        "content": nuevaPreparacion.json(),
-                        "message": "Preparacion creada exitosamente"
-                    }, 201
-                else:
-                    return {
-                        "success": False,
-                        "content": None,
-                        "message": "el orden debe ser correlativo"
-                    }
-
+                return {
+                    "success": False,
+                    "content": None,
+                    "message": "el orden debe ser correlativo"
+                }
         else:
             return {
                 "success": False,
@@ -70,5 +67,28 @@ class PreparacionesController(Resource):
                 "message": "postre no existe"
             }, 400
 
-    def get(self):
-        pass
+    def get(self, postre_id):
+        # select {with_entities} from ..
+        # print(base_de_datos.session.query(PreparacionModel).filter_by(
+        #     postre=postre_id).with_entities(PreparacionModel.preparacionDescripcion, PreparacionModel.preparacionOrden).all())
+        preparaciones = base_de_datos.session.query(
+            PreparacionModel).filter_by(postre=postre_id).order_by(PreparacionModel.preparacionOrden.asc()).all()
+
+        if preparaciones:
+            resultadoGeneral = preparaciones[0].preparacionPostre.json()
+            lista = []
+            for elemento in preparaciones:
+                print(elemento.preparacionPostre.postreNombre)
+                lista.append(elemento.json())
+            resultadoGeneral['preparaciones'] = lista
+            return {
+                'success': True,
+                'content': resultadoGeneral,
+                'message': "ok"
+            }
+        else:
+            return {
+                'success': True,
+                'content': None,
+                'message': "el postre aun no tiene preparaciones"
+            }, 200
