@@ -6,13 +6,26 @@ from flask_restful import Api
 from dotenv import load_dotenv
 from os import environ
 from config.conexion_bd import base_de_datos
-
+from flask_swagger_ui import get_swaggerui_blueprint
 from models.receta import RecetaModel
 
 
 load_dotenv()
 
+# configurar SWAGGER en FLASK
+
+# esta variable sirve para indicar en que ruta (endpoint) se encontrara la documentacion
+SWAGGER_URL = "/api/docs"
+API_URL = "/static/swagger.json"  # indicar la ubicacion del archivo json
+swagger_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL, API_URL, config={
+        'app_name': "Reposteria Flask - Swagger Documentation"
+    }
+)
+
 app = Flask(__name__)
+# sirve para registrar en el caso que nosotros tengamos un proyecto interno para agregarlo a un proyecto principal
+app.register_blueprint(swagger_blueprint)
 api = Api(app)
 # dialect://username:password@host:port/database
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get("DATABASE_URI")
