@@ -72,7 +72,7 @@ class RegistroController(Resource):
             return {
                 "success": False,
                 "content": None,
-                "message": "correo incorrecto"
+                "message": "correo o password incorrecto"
             }, 400
 
         # if "@" in correo and "." in correo:
