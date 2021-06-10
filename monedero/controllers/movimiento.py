@@ -1,7 +1,8 @@
+from re import escape
 from flask_restful import Resource, reqparse
 from models.movimiento import MovimientoModel
 from datetime import datetime
-from flask_jwt import jwt_required
+from flask_jwt import jwt_required, current_identity
 
 
 class MovimientosController(Resource):
@@ -22,7 +23,7 @@ class MovimientosController(Resource):
     )
     serializer.add_argument(
         'fecha',
-        type=datetime,
+        type=str,
         required=False,
         help='Falta la fecha',
         location='json'
@@ -46,9 +47,22 @@ class MovimientosController(Resource):
 
     @jwt_required()
     def post(self):
+        print(current_identity)
         data = self.serializer.parse_args()
         print(data)
-        return 'ok'
+        # strptime => convierte de un string a una fecha mediante formato
+        # strftime => convierte una fecha a un string
+        try:
+            fecha = datetime.strptime(data['fecha'], '%Y-%m-%d %H:%M:%S')
+            #fecha_en_texto = fecha.strftime('%Y-%m-%d %H:%M:%S')
+            print(type(fecha))
+            return 'ok'
+        except:
+            return {
+                "success": False,
+                "message": "Formato de fecha incorrecto, el formato es YYYY-MM-DD HH:MM:SS",
+                "content": None
+            }
 
     def get(self):
         pass

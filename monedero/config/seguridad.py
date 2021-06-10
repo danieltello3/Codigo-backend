@@ -27,7 +27,6 @@ def autenticador(username, password):
             if checkpw(bytes(password, 'utf-8'), bytes(usuario.usuarioPassword, 'utf-8')):
                 # si la contraseña es correcta
                 # esto me servira para agregarlo en el payload (la parte intermedia de la jwt)
-                print(Usuario(usuario.usuarioId, usuario.usuarioCorreo))
                 return Usuario(usuario.usuarioId, usuario.usuarioCorreo)
             else:
                 print("la password no coincide")
