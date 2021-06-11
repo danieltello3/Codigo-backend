@@ -1,4 +1,3 @@
-from re import escape
 from flask_restful import Resource, reqparse
 from models.movimiento import MovimientoModel
 from datetime import datetime
@@ -55,8 +54,16 @@ class MovimientosController(Resource):
         try:
             fecha = datetime.strptime(data['fecha'], '%Y-%m-%d %H:%M:%S')
             #fecha_en_texto = fecha.strftime('%Y-%m-%d %H:%M:%S')
-            print(type(fecha))
-            return 'ok'
+            # # print(type(fecha))
+            nuevoMovimiento = MovimientoModel(data['nombre'], data['monto'], fecha,
+                                              data['imagen'], data['tipo'], current_identity.get('usuarioID'))
+            nuevoMovimiento.save()
+
+            return {
+                "success": True,
+                "content": nuevoMovimiento.json(),
+                "message": "movimiento registrado exitosamente"
+            }
         except:
             return {
                 "success": False,
