@@ -1,6 +1,6 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, render_template
 from flask_restful import Api
-from controllers.usuario import RegistroController, ForgotPasswordController
+from controllers.usuario import RegistroController, ForgotPasswordController, ResetPasswordController
 from controllers.movimiento import MovimientosController
 from models.sesion import SesionModel
 from datetime import timedelta, datetime
@@ -13,12 +13,17 @@ from config.custom_jwt import manejo_error_JWT
 # sirve para validar el nombre del archivo, antes de guardarlo
 from werkzeug.utils import secure_filename
 from uuid import uuid4
+from flask_cors import CORS
+from cryptography.fernet import Fernet
+import json
 
 
 load_dotenv()
 
 UPLOAD_FOLDER = 'multimedia'
 app = Flask(__name__)
+CORS(app=app,
+     methods=['GET', 'POST'], allow_headers=['*'])
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get("DATABASE_URI")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = environ.get("JWT_SECRET")
@@ -104,9 +109,35 @@ def eliminar_archivo(nombre):
         }, 404
 
 
+@app.route('/', methods=['GET'])
+def inicio():
+    return render_template('index.jinja', mensaje='Hola amigos como estan?')
+
+
+@app.route('/recuperarPassword/<string:token>')
+def recuperar_password(token):
+    fernet = Fernet(environ.get("FERNET_SECRET"))
+    # decrypt(b'token')
+    # el metodo decrypt recibe una token pero en formato de bytes y luego si es que cumple con la password devolvera el mensaje encriptado pero en bytes, y para convertirlo en string usamos el metodo decode
+    try:
+        respuesta = fernet.decrypt(bytes(token, 'utf-8')).decode('utf-8')
+        respuesta_diccionario = json.loads(respuesta)
+        fecha_caducidad = datetime.strptime(
+            respuesta_diccionario['fecha_caducidad'], '%Y-%m-%d %H:%M:%S.%f')
+
+        if fecha_caducidad > datetime.now():
+            return render_template('recovery_password.jinja', correo=respuesta_diccionario['correo'])
+        else:
+            return render_template('bad_token.jinja')
+
+    except:
+        return render_template('bad_token.jinja')
+
+
 api.add_resource(RegistroController, "/registro")
 api.add_resource(MovimientosController, "/movimientos")
-api.add_resource(ForgotPasswordController, "/olvido-password")
+api.add_resource(ForgotPasswordController, "/olvide-password")
+api.add_resource(ResetPasswordController, "/reset-password")
 
 if __name__ == '__main__':
     app.run(debug=True)
