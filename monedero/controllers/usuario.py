@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from config.conexion_bd import base_de_datos
 from utils.enviar_correo_puro import enviarCorreo
 
+
 load_dotenv()
 
 PATRON_CORREO = '^[a-zA-Z0-9._-]+[@]\w+[.]\w{2,3}$'

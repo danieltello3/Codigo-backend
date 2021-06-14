@@ -2,7 +2,7 @@ from flask import Flask, request, send_file, render_template
 from flask_restful import Api
 from controllers.usuario import RegistroController, ForgotPasswordController, ResetPasswordController
 from controllers.movimiento import MovimientosController
-from models.sesion import SesionModel
+from models.blacklist import BlacklistModel
 from datetime import timedelta, datetime
 from os import environ, path, remove
 from dotenv import load_dotenv
@@ -41,7 +41,7 @@ jsonwebtoken = JWT(app=app, authentication_handler=autenticador,
 jsonwebtoken.jwt_error_callback = manejo_error_JWT
 
 base_de_datos.init_app(app)
-# base_de_datos.drop_all(app=app)
+base_de_datos.drop_all(app=app)
 base_de_datos.create_all(app=app)
 
 EXTENSIONES_PERMITIDAS = {'pdf', 'png', 'jpg', 'jpeg'}
@@ -119,19 +119,26 @@ def recuperar_password(token):
     fernet = Fernet(environ.get("FERNET_SECRET"))
     # decrypt(b'token')
     # el metodo decrypt recibe una token pero en formato de bytes y luego si es que cumple con la password devolvera el mensaje encriptado pero en bytes, y para convertirlo en string usamos el metodo decode
-    try:
-        respuesta = fernet.decrypt(bytes(token, 'utf-8')).decode('utf-8')
-        respuesta_diccionario = json.loads(respuesta)
-        fecha_caducidad = datetime.strptime(
-            respuesta_diccionario['fecha_caducidad'], '%Y-%m-%d %H:%M:%S.%f')
-
-        if fecha_caducidad > datetime.now():
-            return render_template('recovery_password.jinja', correo=respuesta_diccionario['correo'])
-        else:
-            return render_template('bad_token.jinja')
-
-    except:
+    token_bl = base_de_datos.session.query(
+        BlacklistModel).filter_by(blacklistToken=token).first()
+    if token_bl:
         return render_template('bad_token.jinja')
+    else:
+        try:
+            respuesta = fernet.decrypt(bytes(token, 'utf-8')).decode('utf-8')
+            respuesta_diccionario = json.loads(respuesta)
+            fecha_caducidad = datetime.strptime(
+                respuesta_diccionario['fecha_caducidad'], '%Y-%m-%d %H:%M:%S.%f')
+
+            if fecha_caducidad > datetime.now():
+                token_blacklisted = BlacklistModel(token)
+                token_blacklisted.save()
+                return render_template('recovery_password.jinja', correo=respuesta_diccionario['correo'])
+            else:
+                return render_template('bad_token.jinja')
+
+        except:
+            return render_template('bad_token.jinja')
 
 
 api.add_resource(RegistroController, "/registro")
