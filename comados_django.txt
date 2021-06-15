@@ -1,0 +1,2 @@
+djando-admin startproject <project-name> => crea un proyecto con ese nombre
+python manage.py
