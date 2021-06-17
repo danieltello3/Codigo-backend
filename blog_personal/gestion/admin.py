@@ -11,6 +11,10 @@ class LibroAdmin(admin.ModelAdmin):
     readonly_fields = ['libroId']
 
 
+class PrestamoAdmin(admin.ModelAdmin):
+    list_display = ['usuario', 'libro']
+
+
 admin.site.register(LibroModel, LibroAdmin)
 admin.site.register(UsuarioModel)
-admin.site.register(PrestamoModel)
+admin.site.register(PrestamoModel, PrestamoAdmin)

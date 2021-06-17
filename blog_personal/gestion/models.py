@@ -36,6 +36,9 @@ class UsuarioModel(models.Model):
         help_text='Ingrese un dni valido'
     )
 
+    def __str__(self):
+        return self.usuarioNombre + ' ' + self.usuarioApellido
+
     class Meta:
         # modifica el nombre de la tabla en la bd
         db_table = 'usuarios'
@@ -102,7 +105,7 @@ class LibroModel(models.Model):
 
 
 class PrestamoModel(models.Model):
-    prestamoId = models.IntegerField(
+    prestamoId = models.AutoField(
         primary_key=True,
         unique=True,
         db_column='id'
