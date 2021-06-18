@@ -92,6 +92,11 @@ class LibroModel(models.Model):
         default=0
     )
 
+    createdAt = models.DateTimeField(
+        auto_now_add=True, db_column='created_at', null=False)
+    updatedAt = models.DateTimeField(auto_now=True, db_column='updated_at')
+    deletedAt = models.DateTimeField(db_column='deleted_at', null=True)
+
     def __str__(self):
         return self.libroNombre
 
