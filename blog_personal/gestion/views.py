@@ -4,10 +4,32 @@ from rest_framework.request import Request
 from django.utils.timezone import now
 from rest_framework import status
 from rest_framework.decorators import api_view
-from .models import LibroModel
-from .serializers import LibroSerializer
-
+from .models import LibroModel, UsuarioModel
+from .serializers import BusquedaLibroSerializer, LibroSerializer, UsuarioSerializer
+from rest_framework.pagination import PageNumberPagination
 # crear y listar todos los libros
+
+
+class PaginacionPersonalizada(PageNumberPagination):
+    # es el nombre de la variable que usaremos en la paginacion, su valor x default es page
+    page_query_param = 'pagina'
+    # es el valor predeterminado para la cantidad de items por pagina
+    page_size = 2
+    # es el nombre de la variable que usaremos para la cantidad de elementos que el usuario desea
+    page_size_query_param = 'cantidad'
+    # si el usuario me manda un elemento mayor que el max_page_size entonces usaremos el max_page_size (el tope de elementos por hoja)
+    max_page_size = 10
+
+    def get_paginated_response(self, data):
+        return Response(data={
+            'paginacion': {
+                'paginaContinua': self.get_next_link(),
+                'paginaPrevia': self.get_previous_link(),
+                'total': self.page.paginator.count
+            },
+            'data': data
+        }
+        )
 
 
 class LibrosController(ListCreateAPIView):
@@ -16,19 +38,20 @@ class LibrosController(ListCreateAPIView):
     queryset = LibroModel.objects.all()  # SELECT * FROM libros
     # serializer_class = encargado de transformar la data que llega y que se envia al cliente
     serializer_class = LibroSerializer
+    pagination_class = PaginacionPersonalizada
 
-    def get(self, request):
-        # en el request se almacenan todos los datos que me manda el front(headers,body,cookies,auth)
+    # def get(self, request):
+    #     # en el request se almacenan todos los datos que me manda el front(headers,body,cookies,auth)
 
-        print(self.get_queryset())
-        libros = self.get_queryset()
-        respuesta = self.serializer_class(instance=libros, many=True)
-        print(respuesta.data)
-        return Response(data={
-            'success': True,
-            'content': respuesta.data,
-            'message': None
-        }, status=200)
+    #     print(self.get_queryset())
+    #     libros = self.get_queryset()
+    #     respuesta = self.serializer_class(instance=libros, many=True)
+    #     print(respuesta.data)
+    #     return Response(data={
+    #         'success': True,
+    #         'content': respuesta.data,
+    #         'message': None
+    #     }, status=200)
 
     def post(self, request: Request):
         # la informacion mandada por el front (body) se recibira por el atributo data
@@ -109,15 +132,55 @@ def busqueda_libros(request: Request):
     print(request.query_params)
     nombre = request.query_params.get('nombre')
     autor = request.query_params.get('autor')
-    if nombre:
+
+    # resultado = LibroModel.objects.filter(libroNombre__contains=nombre if nombre else '', libroAutor__contains=autor if autor else '').order_by('libroNombre').all()
+    if nombre and autor:
+        resultado = LibroModel.objects.filter(
+            libroNombre__contains=nombre, libroAutor__contains=autor).order_by('libroNombre').all()
+    elif nombre:
         resultado = LibroModel.objects.filter(
             libroNombre__contains=nombre).order_by('libroNombre').all()
+    elif autor:
+        resultado = LibroModel.objects.filter(
+            libroAutor__contains=autor).order_by('libroNombre').all()
+    else:
+        resultado = LibroModel.objects.all()
 
     resultadoSerializado = LibroSerializer(instance=resultado, many=True)
-    print(resultado)
-    print(autor)
+
     return Response(data={
         'success': True,
         'content': resultadoSerializado.data,
         'message': None
     })
+
+
+@api_view(http_method_names=['GET'])
+def busqueda_edicion(request: Request):
+    # inicio = int(request.query_params.get('inicio'))
+    # fin = int(request.query_params.get('fin'))
+    param_serializados = BusquedaLibroSerializer(data=request.query_params)
+    if param_serializados.is_valid():
+        print(param_serializados.validated_data)
+        resultado = LibroModel.objects.filter(libroEdicion__range=(param_serializados.validated_data.get(
+            'inicio'), param_serializados.validated_data.get('fin'))).order_by('libroEdicion').all()
+
+        resultadoSerializado = LibroSerializer(instance=resultado, many=True)
+
+        return Response(data={
+            'success': True,
+            'content': resultadoSerializado.data,
+            'message': None
+        })
+    else:
+        return Response(data={
+            'success': False,
+            'content': param_serializados.errors,  # resultadoSerializado.data,
+            'message': None
+        })
+
+
+class UsuariosController(ListCreateAPIView):
+    queryset = UsuarioModel.objects.all()
+    serializer_class = UsuarioSerializer
+    pagination_class = PaginacionPersonalizada
