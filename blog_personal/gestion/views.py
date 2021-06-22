@@ -1,11 +1,14 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import CreateAPIView, ListCreateAPIView, RetrieveAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from django.utils.timezone import now
 from rest_framework import status
 from rest_framework.decorators import api_view
-from .models import LibroModel, UsuarioModel
-from .serializers import BusquedaLibroSerializer, LibroSerializer, UsuarioSerializer
+from .models import LibroModel, PrestamoModel, UsuarioModel
+from .serializers import (BusquedaLibroSerializer,
+                          LibroSerializer,
+                          PrestamoSerializer,
+                          UsuarioSerializer)
 from rest_framework.pagination import PageNumberPagination
 # crear y listar todos los libros
 
@@ -184,3 +187,38 @@ class UsuariosController(ListCreateAPIView):
     queryset = UsuarioModel.objects.all()
     serializer_class = UsuarioSerializer
     pagination_class = PaginacionPersonalizada
+
+
+class PrestamosController(CreateAPIView):
+    queryset = PrestamoModel.objects.all()
+    serializer_class = PrestamoSerializer
+
+    def post(self, request: Request):
+        data = request.data
+        nuevoPrestamo = PrestamoSerializer(data=data)
+        if nuevoPrestamo.is_valid():
+            respuesta = nuevoPrestamo.save()
+            if type(respuesta) is PrestamoModel:
+                # libro: LibroModel = LibroModel.objects.filter(
+                #     libroId=data.get('libro')).first()
+                # libro.libroCantidad = libro.libroCantidad - 1
+                # libro.save()
+                return Response(data={
+                    'success': True,
+                    'content': nuevoPrestamo.data,
+                    'message': "Prestamos agregado exitosamente"
+                }, status=status.HTTP_201_CREATED)
+
+            return Response(data={
+                'success': False,
+                'content': nuevoPrestamo.errors or respuesta if type(respuesta) is str else respuesta.args,
+                'message': "Error al crear el prestamo"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PrestamoController(RetrieveAPIView):
+    queryset = PrestamoModel.objects.all()
+    serializer_class = PrestamoSerializer
+
+    def get(self, request, id):
+        pass

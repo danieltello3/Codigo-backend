@@ -1,6 +1,6 @@
 from django.db import models
-from datetime import date, datetime
-from django.utils import timezone
+from datetime import date
+# from django.utils import timezone
 # Create your models here.
 
 
@@ -116,7 +116,7 @@ class PrestamoModel(models.Model):
         db_column='id'
     )
     prestamoFechaInicio = models.DateField(
-        default=timezone.now,
+        default=date.today,
         db_column='fecha_inicio',
         verbose_name='Fecha de inicio del prestamo'
     )
