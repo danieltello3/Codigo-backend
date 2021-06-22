@@ -50,44 +50,50 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 
 class PrestamoSerializer(serializers.ModelSerializer):
-    # def validate(self, data):
-    #     # mover las siguientes validaciones al metodo validate
-    #     # validar si el usuario no tiene un prestamo activo
-    #     # validar si el libro no fue inhabilitado (deleteAt)
-    #     # no usar el self.validated_data sino el self.initial_data pero el initial_data no hace la busqueda del libro ni del usuario
-    #     # return data
-    #     pass
+    def validate(self, data):
+        # mover las siguientes validaciones al metodo validate
+        # validar si el usuario no tiene un prestamo activo
+        # validar si el libro no fue inhabilitado (deleteAt)
+        # no usar el self.validated_data sino el self.initial_data pero el initial_data no hace la busqueda del libro ni del usuario
+        # return data
+        prestamoActivo: PrestamoModel = PrestamoModel.objects.filter(
+            usuario=self.initial_data.get('usuario'), prestamoEstado=True).first()
+        libro: LibroModel = LibroModel.objects.filter(
+            libroId=self.initial_data.get('libro')).first()
+        if prestamoActivo:
+            raise serializers.ValidationError(
+                detail='El usuario tiene un prestamos activo')
+        elif libro.deletedAt:
+            raise serializers.ValidationError(
+                detail='El libro no esta disponible')
+        elif libro.libroCantidad <= 0:
+            raise serializers.ValidationError(
+                detail='El libro no tiene suficiente unidades')
+        else:
+            return data
 
     def save(self):
-        prestamoActivo: PrestamoModel = PrestamoModel.objects.filter(
-            usuario=self.validated_data.get('usuario').usuarioId, prestamoEstado=True).first()
-        libro: LibroModel = self.validated_data.get('libro')
-        if prestamoActivo:
-            return "El usuario tiene un prestamos activo"
-        if libro.deletedAt:
-            return "El libro no esta disponible"
-        if libro.libroCantidad > 0 and libro.deletedAt is None:
-            try:
-                with transaction.atomic():
-                    libro.libroCantidad = libro.libroCantidad - 1
-                    libro.save()
-                    nuevoPrestamo = PrestamoModel(
-                        prestamoFechaInicio=self.validated_data.get(
-                            'prestamoFechaInicio', date.today()),
-                        prestamoFechaFin=self.validated_data.get(
-                            'prestamoFechaFin'),
-                        prestamoEstado=self.validated_data.get(
-                            'prestamoEstado', True),
-                        usuario=self.validated_data.get('usuario'),
-                        libro=self.validated_data.get('libro'),
-                    )
-                    nuevoPrestamo.save()
-                    return nuevoPrestamo
-            except Exception as error:
-                print(error)
-                return error
-        else:
-            return 'El libro no tiene suficiente unidades'
+        try:
+            with transaction.atomic():
+                libro: LibroModel = self.validated_data.get('libro')
+                print(libro)
+                libro.libroCantidad = libro.libroCantidad - 1
+                libro.save()
+                nuevoPrestamo = PrestamoModel(
+                    prestamoFechaInicio=self.validated_data.get(
+                        'prestamoFechaInicio', date.today()),
+                    prestamoFechaFin=self.validated_data.get(
+                        'prestamoFechaFin'),
+                    prestamoEstado=self.validated_data.get(
+                        'prestamoEstado', True),
+                    usuario=self.validated_data.get('usuario'),
+                    libro=self.validated_data.get('libro'),
+                )
+                nuevoPrestamo.save()
+                return nuevoPrestamo
+        except Exception as error:
+            print(error)
+            return error
 
     class Meta:
         model = PrestamoModel

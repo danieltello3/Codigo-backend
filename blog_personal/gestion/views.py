@@ -209,11 +209,11 @@ class PrestamosController(CreateAPIView):
                     'message': "Prestamos agregado exitosamente"
                 }, status=status.HTTP_201_CREATED)
 
-            return Response(data={
-                'success': False,
-                'content': nuevoPrestamo.errors or respuesta if type(respuesta) is str else respuesta.args,
-                'message': "Error al crear el prestamo"
-            }, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={
+            'success': False,
+            'content': nuevoPrestamo.errors,
+            'message': "Error al crear el prestamo"
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PrestamoController(RetrieveAPIView):
