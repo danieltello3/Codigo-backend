@@ -136,3 +136,5 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 5,
 }
+# STATIC_ROOT => CUANDO nosotros deseemos generar los archivos estaticos (CSS, JS, HTML) propios de DRF y django se almacenarar en la direccion que pongamos
+STATIC_ROOT = BASE_DIR / 'assets/'
