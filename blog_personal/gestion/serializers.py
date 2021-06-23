@@ -1,4 +1,5 @@
 from datetime import date
+from django.db.models import fields
 from rest_framework import serializers
 from django.utils.timezone import now
 from .models import LibroModel, PrestamoModel, UsuarioModel
@@ -97,4 +98,29 @@ class PrestamoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PrestamoModel
+        fields = '__all__'
+
+
+class PrestamoNestedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PrestamoModel
+        fields = '__all__'
+        # atributo depth, indica cuantos niveles quiere ingresar a partir del actual
+        depth = 1
+
+
+class PrestamoUsuarioSerializer(serializers.ModelSerializer):
+    libro = LibroSerializer()
+    #usuario_pertenece = UsuarioSerializer(source='usuario')
+
+    class Meta:
+        model = PrestamoModel
+        fields = '__all__'
+
+
+class UsuarioNestedSerializer(serializers.ModelSerializer):
+    prestamos = PrestamoUsuarioSerializer(many=True, source="usuarioPrestamos")
+
+    class Meta:
+        model = UsuarioModel
         fields = '__all__'

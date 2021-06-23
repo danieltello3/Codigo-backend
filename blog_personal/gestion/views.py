@@ -6,8 +6,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from .models import LibroModel, PrestamoModel, UsuarioModel
 from .serializers import (BusquedaLibroSerializer,
-                          LibroSerializer,
-                          PrestamoSerializer,
+                          LibroSerializer, PrestamoNestedSerializer,
+                          PrestamoSerializer, PrestamoUsuarioSerializer, UsuarioNestedSerializer,
                           UsuarioSerializer)
 from rest_framework.pagination import PageNumberPagination
 # crear y listar todos los libros
@@ -218,7 +218,41 @@ class PrestamosController(CreateAPIView):
 
 class PrestamoController(RetrieveAPIView):
     queryset = PrestamoModel.objects.all()
-    serializer_class = PrestamoSerializer
+    serializer_class = PrestamoUsuarioSerializer
 
     def get(self, request, id):
-        pass
+        prestamo = PrestamoModel.objects.filter(prestamoId=id).first()
+        if prestamo:
+            data = self.serializer_class(instance=prestamo)
+            return Response(data={
+                "success": True,
+                "content": data.data,
+                "message": None
+            })
+        else:
+            return Response(data={
+                "success": False,
+                "content": None,
+                "message": "Prestamo no existe",
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
+class UsuarioController(RetrieveAPIView):
+    queryset = UsuarioModel.objects.all()
+    serializer_class = UsuarioNestedSerializer
+
+    def get(self, request, id):
+        usuario = UsuarioModel.objects.filter(usuarioId=id).first()
+        if usuario:
+            data = self.serializer_class(instance=usuario)
+            return Response(data={
+                "success": True,
+                "content": data.data,
+                "message": None
+            })
+        else:
+            return Response(data={
+                "success": False,
+                "content": None,
+                "message": "usuario no existe",
+            }, status=status.HTTP_404_NOT_FOUND)
