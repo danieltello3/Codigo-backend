@@ -1,5 +1,5 @@
 from django.db import models
-from authManager import UsuarioManager
+from .authManager import UsuarioManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 
@@ -34,6 +34,9 @@ class PlatoModel(models.Model):
         default=0,
     )
 
+    updatedAt = models.DateTimeField(
+        auto_now=True, db_column='updated_at')
+
     class Meta:
         db_table = 'platos'
         ordering = ['platoNombre']
@@ -59,33 +62,40 @@ class UsuarioModel(AbstractBaseUser, PermissionsMixin):
     usuarioNombre = models.CharField(
         max_length=20,
         null=False,
-        db_column='nombre'
+        db_column='nombre',
+        verbose_name='Nombre del usuario'
     )
     usuarioApellido = models.CharField(
         max_length=20,
         null=False,
-        db_column='apellido'
+        db_column='apellido',
+        verbose_name='Apellido del usuario'
     )
     usuarioCorreo = models.EmailField(
         db_column='correo',
-        null=False
+        unique=True,
+        null=False,
+        verbose_name='Correo del usuario'
     )
     usuarioTipo = models.IntegerField(
         choices=TIPO_PERSONAL,
-        db_column='tipo'
+        db_column='tipo',
+        verbose_name='Tipo del usuario'
     )
     usuarioTelefono = models.CharField(
         max_length=10,
         db_column='telefono'
     )
     password = models.TextField()
+    updatedAt = models.DateTimeField(
+        auto_now=True, db_column='updated_at')
 
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
     # comportamiento del modelo al momento de realizar la creacion del superusuario por consola
 
-    objects = UsuarioManager
+    objects = UsuarioManager()
 
     # ahora defino que columna sera la encargada de validar que el usuario sea unico
     USERNAME_FIELD = 'usuarioCorreo'
@@ -112,6 +122,8 @@ class MesaModel(models.Model):
         db_column='capacidad',
         null=False
     )
+    updatedAt = models.DateTimeField(
+        auto_now=True, db_column='updated_at')
 
     class Meta:
         db_table = 'mesas'

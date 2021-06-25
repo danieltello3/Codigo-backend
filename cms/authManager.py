@@ -5,7 +5,7 @@ from django.contrib.auth.models import BaseUserManager
 class UsuarioManager(BaseUserManager):
     """Clase que sirve para modificar el comportamiento del modelo auth_user de django"""
 
-    def create_user(self, email, nombre, apellido, tipo, telefono, password=None):
+    def create_user(self, email, nombre, apellido, tipo, password=None):
         """Creacion de un usuario comun"""
         if not email:
             raise ValueError(
@@ -15,7 +15,7 @@ class UsuarioManager(BaseUserManager):
         email = self.normalize_email(email)
         # creo mi objeto de usuario pero aun no se guarda en la bd
         nuevoUsuario = self.model(
-            usuarioCorreo=email, usuarioNNombre=nombre, usuarioApellido=apellido, usuarioTipo=tipo, usuarioTelefono=telefono)
+            usuarioCorreo=email, usuarioNombre=nombre, usuarioApellido=apellido, usuarioTipo=tipo)
         # ahora encripto la password
         nuevoUsuario.set_password(password)
         # guardo en la bd
@@ -23,10 +23,10 @@ class UsuarioManager(BaseUserManager):
         nuevoUsuario.save(using=self._db)
         return nuevoUsuario
 
-    def create_superuser(self, usuarioCorreo, usuarioNombre, usuarioApellido, usuarioTipo, usuarioTelefono, password):
+    def create_superuser(self, usuarioCorreo, usuarioNombre, usuarioApellido, usuarioTipo, password):
         """Creacion de un nuevo super usuario para que pueda acceder al panel administrativo y algunas opciones adicionales"""
         usuario = self.create_user(
-            usuarioCorreo, usuarioNombre, usuarioApellido, usuarioTipo, usuarioTelefono, password)
+            usuarioCorreo, usuarioNombre, usuarioApellido, usuarioTipo, password)
         usuario.is_superuser = True
         usuario.is_staff = True
         usuario.save(using=self._db)
