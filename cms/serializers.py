@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.storage import default_storage
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import *
 from rest_framework import serializers
 from os import path
@@ -28,3 +29,21 @@ class ArchivoSerializer(serializers.Serializer):
         ruta = default_storage.save(archivo.name, ContentFile(archivo.read()))
         ruta_final = path.join(settings.MEDIA_ROOT, ruta)
         print(ruta_final)
+        return settings.MEDIA_URL + ruta
+
+
+class EliminarArchivoSerializer(serializers.Serializer):
+    nombre = serializers.CharField(
+        required=True,
+        help_text="ingrese nombre del archivo"
+    )
+
+
+class CustomPayloadSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user: UsuarioModel):
+        token = super(CustomPayloadSerializer, cls).get_token(user)
+        print(token)
+        token['usuarioTipo'] = user.usuarioTipo
+        token['message'] = 'Holis'
+        return token

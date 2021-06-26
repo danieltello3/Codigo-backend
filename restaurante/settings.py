@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 from os import environ
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -139,3 +140,19 @@ AUTH_USER_MODEL = 'cms.UsuarioModel'
 
 # sirve para mostrar y almacenar los archivos multimedia mediante la URL
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# sirve para indicar la ruta para devolver todos los archivos multimedia almacenados en el backend
+MEDIA_URL = '/assets/'
+
+# sirve para definir a django rest framework, algunas configuraciones adicionales como la paginacion, la autenticacion y excepciones
+REST_FRAMEWORK = {
+    # Sirve para indicar cual sera la clase encargada de la autenticacion de los metodos REST
+    'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework_simplejwt.authentication.JWTAuthentication']
+}
+
+# sirve para configurar toda la libreria de JWT
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=5),
+    'USER_ID_FIELD': 'usuarioId'
+}
