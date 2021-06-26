@@ -9,6 +9,8 @@ from os import path
 
 
 class PlatoSerializer(serializers.ModelSerializer):
+    platoFoto = serializers.CharField(max_length=100)
+
     class Meta:
         model = PlatoModel
         fields = '__all__'
@@ -47,3 +49,64 @@ class CustomPayloadSerializer(TokenObtainPairSerializer):
         token['usuarioTipo'] = user.usuarioTipo
         token['message'] = 'Holis'
         return token
+
+
+class RegistroUsuarioSerializer(serializers.ModelSerializer):
+    #password = serializers.CharField(write_only=True)
+    def save(self):
+        usuarioNombre = self.validated_data.get('usuarioNombre')
+        usuarioApellido = self.validated_data.get('usuarioApellido')
+        usuarioCorreo = self.validated_data.get('usuarioCorreo')
+        usuarioTipo = self.validated_data.get('usuarioTipo')
+        usuarioTelefono = self.validated_data.get('usuarioTelefono')
+        password = self.validated_data.get('password')
+        nuevoUsuario = UsuarioModel(
+            usuarioNombre=usuarioNombre,
+            usuarioApellido=usuarioApellido,
+            usuarioCorreo=usuarioCorreo,
+            usuarioTipo=usuarioTipo,
+            usuarioTelefono=usuarioTelefono
+        )
+        nuevoUsuario.set_password(password)
+        nuevoUsuario.save()
+        return nuevoUsuario
+
+    class Meta:
+        model = UsuarioModel
+        exclude = ['groups', 'user_permissions']
+        # es para dar configuracion adicional a los atributos de un model serializer, usando el atributo extra_kwargs se puede editar la configuracion de si solo escritura, solo lectura, required, allow null, default y error messages
+        # no es necesari
+        extra_kwargs = {
+            'password': {
+                'write_only': True
+            }
+        }
+
+
+class MesasSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MesaModel
+        fields = '__all__'
+
+
+class DetalleSerializer(serializers.Serializer):
+    cantidad = serializers.IntegerField()
+    plato = serializers.IntegerField(
+        min_value=1
+    )
+
+
+class PedidoSerializer(serializers.Serializer):
+    documento_cliente = serializers.CharField(
+        required=False, min_length=8, max_length=11)
+    mesa = serializers.IntegerField(min_value=1)
+    detalle = DetalleSerializer(many=True)
+
+    def validate(self, data):
+        documento = data.get('documento_cliente')
+        if documento and (len(documento) == 8 or len(documento) == 11):
+            return data
+        if documento is None:
+            return data
+        raise serializers.ValidationError(
+            detail='El documento debe ser 8 u 11 caracteres')
