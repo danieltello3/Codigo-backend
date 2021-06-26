@@ -7,10 +7,13 @@ from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
 import os
+from dotenv import load_dotenv
 import requests
 from django.conf import settings
 from rest_framework.pagination import PageNumberPagination
 # Create your views here.
+
+load_dotenv()
 
 
 class Paginacion(PageNumberPagination):
@@ -166,7 +169,7 @@ class PedidoController(CreateAPIView):
                         documento_cliente)
                     print("es un ruc")
                 headers = {
-                    'Authorization': 'Bearer feadd026d7a0d5c8f4340c60de023ed6a25536b14ee2bb94cae418a66f0f5319',
+                    'Authorization': os.environ.get('APIPERU_AUTH_TOKEN'),
                     'Content-Type': 'application/json'
                 }
                 respuesta = requests.get(url=url, headers=headers)
