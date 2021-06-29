@@ -95,6 +95,16 @@ class DetalleSerializer(serializers.Serializer):
         min_value=1
     )
 
+    def validate(self, data):
+        try:
+            data['plato'] = PlatoModel.objects.get(platoId=data.get('plato'))
+        except:
+            raise serializers.ValidationError(detail="el plato no existe")
+        if data['plato'].platoCantidad < data.get('cantidad'):
+            raise serializers.ValidationError(
+                detail="la cantidad es mayor que la disponible")
+        return data
+
 
 class PedidoSerializer(serializers.Serializer):
     documento_cliente = serializers.CharField(
@@ -103,6 +113,13 @@ class PedidoSerializer(serializers.Serializer):
     detalle = DetalleSerializer(many=True)
 
     def validate(self, data):
+        # validar si la mesa existe en la bd
+        try:
+            data['mesa'] = MesaModel.objects.get(mesaId=data.get('mesa'))
+        except:
+            raise serializers.ValidationError(detail='la mesa no existe')
+
+        # validar si hay un documento_cliente y si cumple con la longitud requerida
         documento = data.get('documento_cliente')
         if documento and (len(documento) == 8 or len(documento) == 11):
             return data

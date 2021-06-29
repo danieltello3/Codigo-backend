@@ -5,11 +5,12 @@ from rest_framework.response import Response
 from .serializers import *
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 import os
 from dotenv import load_dotenv
 import requests
 from django.conf import settings
+from django.db import transaction
 from rest_framework.pagination import PageNumberPagination
 # Create your views here.
 
@@ -154,11 +155,18 @@ class MesaController(ListAPIView):
 
 class PedidoController(CreateAPIView):
     serializer_class = PedidoSerializer
+    # permission_classes sirve para declarar las opciones de autorizacion que seran requeridas al consultar las rutas de este controlador
+    permission_classes = [IsAuthenticated]
 
     def post(self, request: Request):
         data = self.serializer_class(data=request.data)
+        # request.auth => mostrara la token que se esta enviando al controlador en el apartado de Authorization
+        # request.user => retornara la instancia de usuario si es que existe, caso contrario retornara None
+        # print(request.auth)
         if data.is_valid():
             documento_cliente = data.validated_data.get('documento_cliente')
+            detalles = data.validated_data.get('detalle')
+            mesa = data.validated_data.get('mesa')
             if documento_cliente:
                 if len(documento_cliente) == 8:
                     url = "https://apiperu.dev/api/dni/{}".format(
@@ -172,11 +180,48 @@ class PedidoController(CreateAPIView):
                     'Authorization': os.environ.get('APIPERU_AUTH_TOKEN'),
                     'Content-Type': 'application/json'
                 }
-                respuesta = requests.get(url=url, headers=headers)
-                print(respuesta.json())
-                print(respuesta.status_code)
+                try:
+                    respuesta = requests.get(url=url, headers=headers)
+                    # print(respuesta.ok)
+                    print(respuesta.json())
+                    # print(respuesta.status_code)
+                    json = respuesta.json()
+                    if json.get('success') == False:
+                        return Response(data="usuario incorrecto")
+                    with transaction.atomic():
+                        dataJson = json.get('data')
+                        nuevoPedido = PedidosModel(
+                            pedidoTotal=0.0, pedidoNombreCliente=dataJson.get('nombre_completo') if dataJson.get('nombre_completo') else dataJson.get('nombre_o_razon_social'), pedidoDocumentoCliente=documento_cliente, usuario=request.user, mesa=mesa)
+                        nuevoPedido.save()
+                        for detalle in detalles:
+                            plato: PlatoModel = detalle.get('plato')
+                            subtotal = int(detalle.get('cantidad')) * \
+                                plato.platoPrecio
+                            # crear el detalle
+                            nuevoDetalle = DetalleModel(detalleCantidad=detalle.get(
+                                'cantidad'), plato=plato, pedido=nuevoPedido, detalleSubTotal=subtotal)
+                            nuevoDetalle.save()
+
+                            # descontar la cantidad del registro del plato
+                            plato.platoCantidad -= int(detalle.get('cantidad'))
+                            plato.save()
+
+                            # agregar cantidad a la cabecera del pedido
+                            nuevoPedido.pedidoTotal += float(subtotal)
+                            nuevoPedido.save()
+                except Exception as e:
+                    print(e)
+                    return Response(data={
+                        'message': 'Error al realizar la transaccion',
+                        'success': False,
+                        'content': e.args
+                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             print(data.validated_data)
-            return Response(data="ok")
+            return Response(data={
+                'success': True,
+                'content': None,
+                'message': "Pedido generado exitosamente"
+            }, status=status.HTTP_201_CREATED)
         else:
             return Response(data={
                 "success": False,
