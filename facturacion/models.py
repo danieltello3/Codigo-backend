@@ -33,7 +33,7 @@ class ComprobanteModel(models.Model):
     )
     comprobanteCDR = models.TextField(
         db_column='CDR',
-        null=False
+        null=True
     )
     comprobanteXML = models.TextField(
         db_column='XML',

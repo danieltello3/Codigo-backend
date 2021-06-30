@@ -9,6 +9,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 urlpatterns = [
     #path('admin/', admin.site.urls),
     path('cms/', include('cms.urls')),
+    path('facturacion/', include('facturacion.urls')),
     path('login', TokenObtainPairView.as_view())
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
