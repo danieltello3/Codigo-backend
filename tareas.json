@@ -1,0 +1,12 @@
+{
+   "tareas": [
+      {
+         "nombre": "Deployear en heroku",
+         "estado": true
+      },
+      {
+         "nombre": "hacer el MER",
+         "estado": false
+      }
+   ]
+}
