@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { crearTarea, devolverTarea, listarTareas } from "../controllers/tareas";
+import {
+   buscarTarea,
+   crearTarea,
+   devolverTarea,
+   listarTareas,
+} from "../controllers/tareas";
 
 export const tareas_router = Router();
 // definir rutas cuando tengan diferentes endpoints
@@ -10,3 +15,5 @@ export const tareas_router = Router();
 tareas_router.route("/tareas").get(listarTareas).post(crearTarea);
 
 tareas_router.route("/tareas/:id").get(devolverTarea);
+
+tareas_router.route("/buscarTarea").get(buscarTarea);

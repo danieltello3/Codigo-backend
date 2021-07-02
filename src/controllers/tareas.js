@@ -41,3 +41,29 @@ export const devolverTarea = (req, res) => {
       message: null,
    });
 };
+
+export const buscarTarea = (req, res) => {
+   console.log(req.query);
+   //const { nombre, estado, id } = req.query;
+   let resultado = [];
+   // if (nombre) {
+   //    resultado = [...tareas, ...tareas_temporales].filter(
+   //       (tarea) => tarea.nombre === nombre
+   //    );
+   // }
+   const filters = req.query;
+   const tareas_filtradas = tareas.filter((tarea) => {
+      let isValid = true;
+      for (let key in filters) {
+         console.log(key, tarea[key], filters[key]);
+         isValid = isValid && tarea[key] == filters[key];
+         console.log(isValid);
+      }
+      return isValid;
+   });
+
+   res.json({
+      message: "ok",
+      data: tareas_filtradas,
+   });
+};
