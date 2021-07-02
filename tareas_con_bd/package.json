@@ -1,0 +1,18 @@
+{
+  "name": "tareas_con_bd",
+  "version": "1.0.0",
+  "description": "uso de bd con express",
+  "main": "index.js",
+  "author": "Daniel Tello",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.14.5",
+    "@babel/core": "^7.14.6",
+    "@babel/node": "^7.14.7",
+    "@babel/preset-env": "^7.14.7"
+  }
+}
