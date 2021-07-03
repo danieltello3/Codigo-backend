@@ -121,22 +121,32 @@ export const eliminarTarea = async (req, res) => {
 
 export const tareaBusqueda = async (req, res) => {
    //SELECT * FROM tareas WHERE nombre LIKE '%python%';
-   const { nombre } = req.query;
+   const { nombre, id, estado } = req.query;
+   let filtro = [];
+   if (nombre) {
+      filtro = [...filtro, { tareaNombre: { [Op.like]: `%${nombre}%` } }];
+   }
+   if (id) {
+      filtro = [...filtro, { tareaId: id }];
+   }
+   if (estado) {
+      filtro = [...filtro, { tareaEstado: estado }];
+   }
+   console.log(filtro);
    const resultado = await Tarea.findAll({
       where: {
-         // [Op.and] : [
-         //    {tareaNombre: {
-         //    [Op.like]: `%${nombre}%`},
-         //    {tareaId: id},
-         // },
-         // ]
+         [Op.and]: filtro,
+      },
+      raw: true,
+      attributes: {
+         exclude: ["createdAt", "fecha_actualizacion"],
       },
    });
 
-   console.log(resultado.toJson());
+   console.log(resultado);
 
    return res.json({
       success: true,
-      content: null,
+      content: resultado,
    });
 };
