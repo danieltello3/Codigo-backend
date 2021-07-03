@@ -1,6 +1,7 @@
 import express from "express";
 import { json } from "body-parser";
 import { conexion } from "./sequelize";
+import { tareas_router } from "../routes/tareas";
 
 export class Server {
    constructor() {
@@ -18,6 +19,7 @@ export class Server {
       this.app.get("/", (req, res) => {
          res.send("bienvenido a mi API");
       });
+      this.app.use(tareas_router);
    }
    start() {
       this.app.listen(this.port, async () => {
