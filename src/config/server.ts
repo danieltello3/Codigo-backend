@@ -4,6 +4,7 @@ import { json } from "body-parser";
 import { tipoRouter } from "../routes/tipo";
 import { accionRouter } from "../routes/accion";
 import { conexion } from "./sequelize";
+import { usuarioRouter } from "../routes/usuario";
 
 export default class Server {
    app;
@@ -26,13 +27,14 @@ export default class Server {
       });
       this.app.use(tipoRouter);
       this.app.use(accionRouter);
+      this.app.use(usuarioRouter);
    }
 
    start() {
       this.app.listen(this.port, async () => {
          console.log("Servidor corriendo exitosamente");
          try {
-            await conexion.sync({ force: true });
+            await conexion.sync();
             console.log("Base de datos sincronizada");
          } catch (error) {
             console.error(error);
