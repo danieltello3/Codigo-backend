@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { verify } from "jsonwebtoken";
 import dotenv from "dotenv";
 import { TRespuesta } from "../controllers/dto.response";
-import { Usuario } from "../config/models";
+import { BlackList, Usuario } from "../config/models";
 import { Model } from "sequelize";
 
 dotenv.config();
@@ -38,23 +38,37 @@ export const authValidator = async (
 
    const token = req.headers.authorization.split(" ")[1];
 
-   const respuesta = verificarToken(token);
+   //si encuentra el token el blacklist, retornara un modelo, sino retornara null
+   const tokenBL = await BlackList.findOne({
+      where: { blackListToken: token },
+   });
 
-   console.log(respuesta);
+   if (tokenBL === null) {
+      const respuesta = verificarToken(token);
 
-   if (typeof respuesta === "object") {
-      console.log("token valida");
-      const usuario = await Usuario.findByPk(respuesta.usuarioId, {
-         attributes: { exclude: ["usuarioPassword"] },
-         raw: true,
-      });
-      req.user = usuario;
-      next();
+      console.log(respuesta);
+
+      if (typeof respuesta === "object") {
+         console.log("token valida");
+         const usuario = await Usuario.findByPk(respuesta.usuarioId, {
+            attributes: { exclude: ["usuarioPassword"] },
+            raw: true,
+         });
+         req.user = usuario;
+         next();
+      } else {
+         const rpta: TRespuesta = {
+            success: false,
+            content: null,
+            message: "Token invalida",
+         };
+         return res.status(401).json(rpta);
+      }
    } else {
       const rpta: TRespuesta = {
          success: false,
          content: null,
-         message: "Token invalida",
+         message: "Token ya fue usada, necesita generar una nueva",
       };
       return res.status(401).json(rpta);
    }
