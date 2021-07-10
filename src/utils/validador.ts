@@ -52,7 +52,6 @@ export const authValidator = async (
          console.log("token valida");
          const usuario = await Usuario.findByPk(respuesta.usuarioId, {
             attributes: { exclude: ["usuarioPassword"] },
-            raw: true,
          });
          req.user = usuario;
          next();

@@ -250,6 +250,7 @@ const blackListModel = () =>
          timestamps: false,
       }
    );
+
 // RELACIONES
 
 export const Producto = productoModel();
@@ -321,16 +322,16 @@ DetalleMovimiento.belongsTo(Movimiento, {
    },
 });
 
-Usuario.hasOne(Imagen, {
-   foreignKey: { name: "usuarioId", field: "usuario_id" },
+Imagen.hasOne(Usuario, {
+   foreignKey: { name: "imagenId", field: "imagen_id" },
 });
-Imagen.belongsTo(Usuario, {
-   foreignKey: { name: "usuarioId", field: "usuario_id" },
+Usuario.belongsTo(Imagen, {
+   foreignKey: { name: "imagenId", field: "imagen_id" },
 });
 
-Producto.hasMany(Imagen, {
-   foreignKey: { name: "productoId", field: "producto_id" },
+Producto.belongsToMany(Imagen, {
+   through: "productos_imagenes",
 });
-Imagen.belongsTo(Producto, {
-   foreignKey: { name: "productoId", field: "producto_id" },
+Imagen.belongsToMany(Producto, {
+   through: "productos_imagenes",
 });

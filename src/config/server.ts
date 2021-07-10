@@ -38,7 +38,7 @@ export default class Server {
       this.app.listen(this.port, async () => {
          console.log("Servidor corriendo exitosamente");
          try {
-            await conexion.sync({ force: true });
+            await conexion.sync();
             console.log("Base de datos sincronizada");
          } catch (error) {
             console.error(error);

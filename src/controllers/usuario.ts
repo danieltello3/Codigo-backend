@@ -1,10 +1,11 @@
 import { compareSync } from "bcrypt";
 import { Request, Response } from "express";
-import { BlackList, Usuario } from "../config/models";
-import { TRespuesta } from "./dto.response";
 import { sign } from "jsonwebtoken";
-import dotenv from "dotenv";
+import { BlackList, Imagen, Usuario } from "../config/models";
 import { RequestCustom } from "../utils/validador";
+import { generarUrl } from "../utils/manejoArchivoFirebase";
+import { TRespuesta } from "./dto.response";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -18,17 +19,34 @@ export const registro = async (
          password: usuarioPassword,
          nombre: usuarioNombre,
          tipo: tipoId,
+         imagenId,
       } = req.body;
       const nuevoUsuario = await Usuario.create({
          usuarioCorreo,
          usuarioPassword,
          usuarioNombre,
          tipoId,
+         imagenId,
       });
 
-      nuevoUsuario.setDataValue("usuarioPassword", null);
+      const usuarioEncontrado = await Usuario.findOne({
+         attributes: {
+            exclude: ["usuarioPassword"],
+         },
+         where: { usuarioId: nuevoUsuario.getDataValue("usuarioId") },
+         include: { model: Imagen },
+      });
+      const imagen = usuarioEncontrado?.getDataValue("imagen");
+
+      const url = await generarUrl(
+         imagen.imagenPath,
+         `${imagen.imagenNombre}.${imagen.imagenExtension}`
+      );
+
+      const respuesta = { ...usuarioEncontrado?.toJSON(), imagenUrl: url };
+      //nuevoUsuario.setDataValue("usuarioPassword", null);
       const rpta: TRespuesta = {
-         content: nuevoUsuario,
+         content: respuesta,
          message: "Usuario creado exitosamente",
          success: true,
       };
@@ -89,9 +107,23 @@ export const login = async (req: Request, res: Response) => {
    return res.status(404).json(rpta);
 };
 
-export const perfil = (req: RequestCustom, res: Response) => {
+export const perfil = async (
+   req: RequestCustom,
+   res: Response
+): Promise<Response> => {
+   const imagenId = req?.user?.getDataValue("imagenId");
+   const imagen_encontrada = await Imagen.findByPk(imagenId);
+   const url = await generarUrl(
+      imagen_encontrada?.getDataValue("imagenPath"),
+      `${imagen_encontrada?.getDataValue(
+         "imagenNombre"
+      )}.${imagen_encontrada?.getDataValue("imagenExtension")}`
+   );
+
+   const content = { ...req?.user?.toJSON(), url };
+
    const rpta: TRespuesta = {
-      content: req?.user,
+      content,
       success: true,
       message: ".",
    };
