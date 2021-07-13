@@ -193,7 +193,7 @@ const movimientoModel = () =>
             field: "tipo",
             allowNull: false,
             validate: {
-               isIn: [["ingreso", "egreso"]],
+               isIn: [["INGRESO", "EGRESO"]],
             },
          },
          movimientoTotal: {

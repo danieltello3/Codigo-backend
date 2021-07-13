@@ -7,6 +7,7 @@ import { usuarioRouter } from "../routes/usuario";
 import { productoRouter } from "../routes/producto";
 import { imagenRouter } from "../routes/imagen";
 import { conexion } from "./sequelize";
+import { movimientoRouter } from "../routes/movimiento";
 
 export default class Server {
    app;
@@ -32,6 +33,7 @@ export default class Server {
       this.app.use(usuarioRouter);
       this.app.use(productoRouter);
       this.app.use(imagenRouter);
+      this.app.use(movimientoRouter);
    }
 
    start() {

@@ -29,11 +29,9 @@ type TDetalleMovimientoRequest = {
    movimientoId: number;
 };
 
-type TMovimientoRequest = {
+export type TMovimientoRequest = {
    movimientoFecha: string;
    movimientoTipo: "INGRESO" | "EGRESO";
-   movimientoTotal: number;
-   usuarioId: number;
    movimientoDetalle: Array<TDetalleMovimientoRequest>;
 };
 
@@ -115,9 +113,9 @@ export const movimientoRequestDto = (
    res: Response,
    next: NextFunction
 ) => {
-   const { ...data } = req.body;
+   const { ...data }: TMovimientoRequest = req.body;
 
-   if (data) {
+   if ((data.movimientoDetalle, data.movimientoFecha, data.movimientoTipo)) {
       next();
    } else {
       const rpta: TRespuesta = {
