@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { verify } from "jsonwebtoken";
 import dotenv from "dotenv";
 import { TRespuesta } from "../controllers/dto.response";
-import { BlackList, Usuario } from "../config/models";
-import { Model } from "sequelize";
+import { BlackList, Tipo, Usuario } from "../config/models";
+import { Model, Op } from "sequelize";
 
 dotenv.config();
 
@@ -68,6 +68,30 @@ export const authValidator = async (
          success: false,
          content: null,
          message: "Token ya fue usada, necesita generar una nueva",
+      };
+      return res.status(401).json(rpta);
+   }
+};
+
+export const isAdmin = async (
+   req: RequestCustom,
+   res: Response,
+   next: NextFunction
+) => {
+   const administrador = await Tipo.findOne({
+      where: {
+         tipoDescripcion: { [Op.iLike]: "administrador" },
+         tipoId: req.user?.getDataValue("tipoId"),
+      },
+   });
+
+   if (administrador) {
+      next();
+   } else {
+      const rpta: TRespuesta = {
+         success: false,
+         message: "El usuario no es administrador",
+         content: null,
       };
       return res.status(401).json(rpta);
    }

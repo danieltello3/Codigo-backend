@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Movimiento, DetalleMovimiento } from "../config/models";
+import { Movimiento, DetalleMovimiento, Tipo } from "../config/models";
 import { conexion } from "../config/sequelize";
 import { RequestCustom } from "../utils/validador";
 import { TMovimientoRequest } from "./dto.request";
@@ -50,7 +50,10 @@ export const crearMovimiento = async (req: RequestCustom, res: Response) => {
       const rpta: TRespuesta = {
          success: true,
          message: "Movimiento creado exitosamente",
-         content: null,
+         content: {
+            movimiento: nuevoMovimiento,
+            detalleMovimiento: movimientoDetalles,
+         },
       };
       return res.status(201).json(rpta);
    } catch (error) {
@@ -63,4 +66,40 @@ export const crearMovimiento = async (req: RequestCustom, res: Response) => {
       };
       return res.status(400).json(rpta);
    }
+};
+
+export const listarMovimientos = async (req: RequestCustom, res: Response) => {
+   let { pagina, porPagina } = req.query;
+
+   if (!pagina) {
+      pagina = "1";
+   }
+   if (!porPagina) {
+      porPagina = "2";
+   }
+
+   const offset = (+pagina - 1) * +porPagina;
+   const limit = +porPagina;
+   const [movimientos, total] = await Promise.all([
+      Movimiento.findAll({ limit, offset }),
+      Movimiento.count(),
+   ]);
+
+   const itemsXPagina = +total >= +porPagina ? +porPagina : total;
+   const totalDePaginas = Math.ceil(+total / itemsXPagina);
+   const paginaPrevia = +pagina > 1 && +pagina <= total ? +pagina - 1 : null;
+   const paginaSiguiente =
+      total > 1 && +pagina < totalDePaginas ? +pagina + 1 : null;
+   const paginacionSerializer = {
+      porPagina: itemsXPagina,
+      total,
+      pagina: +pagina,
+      paginaPrevia,
+      paginaSiguiente,
+      totalDePaginas,
+   };
+
+   return res
+      .status(200)
+      .json({ paginacion: paginacionSerializer, data: movimientos });
 };
