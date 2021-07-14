@@ -10,6 +10,9 @@ import { conexion } from "./sequelize";
 import { movimientoRouter } from "../routes/movimiento";
 import documentacion from "./swagger.json";
 import swaggerUI from "swagger-ui-express";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export default class Server {
    app;
@@ -47,6 +50,9 @@ export default class Server {
       this.app.get("/", (req: Request, res: Response) => {
          res.send("Bienvenido a la API de zapateria");
       });
+      process.env.NODE_ENV
+         ? (documentacion.host = `localhost:${this.port}`)
+         : (documentacion.host = `https://zapateria-ts-daniel.herokuapp.com`);
       this.app.use(
          "/docs",
          swaggerUI.serve,

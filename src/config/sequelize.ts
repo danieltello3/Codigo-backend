@@ -13,11 +13,13 @@ dotenv.config();
 
 export const conexion = new Sequelize(String(process.env.DATABASE_URL), {
    dialect: "postgres",
-   dialectOptions: {
-      ssl: {
-         rejectUnauthorized: false,
-      },
-   },
+   dialectOptions: process.env.NODE_ENV
+      ? {}
+      : {
+           ssl: {
+              rejectUnauthorized: false,
+           },
+        },
    timezone: "-05:00",
    //true, activa los querys sql en la consola
    logging: false,
