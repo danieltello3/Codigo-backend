@@ -1,11 +1,24 @@
-import {Sequelize} from 'sequelize';
-import dotenv from 'dotenv';
+import { Sequelize, Options } from "sequelize";
+import dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
+
+// const opciones: Options = {
+//     dialect: "postgres",
+//    timezone: "-05:00",
+//    //true, activa los querys sql en la consola
+//    logging: false,
+//    ssl: true,
+// }
 
 export const conexion = new Sequelize(String(process.env.DATABASE_URL), {
-    dialect: "postgres",
-    timezone: "-05:00",
-    //true, activa los querys sql en la consola
-    logging: false
-})
+   dialect: "postgres",
+   dialectOptions: {
+      ssl: {
+         rejectUnauthorized: false,
+      },
+   },
+   timezone: "-05:00",
+   //true, activa los querys sql en la consola
+   logging: false,
+});
