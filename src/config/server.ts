@@ -51,8 +51,10 @@ export default class Server {
          res.send("Bienvenido a la API de zapateria");
       });
       process.env.NODE_ENV != "production"
-         ? (documentacion.host = `localhost:${this.port}`)
-         : (documentacion.host = `https://zapateria-ts-daniel.herokuapp.com`);
+         ? ((documentacion.host = `localhost:${this.port}`),
+           (documentacion.schemes = ["http"]))
+         : ((documentacion.host = `https://zapateria-ts-daniel.herokuapp.com`),
+           (documentacion.schemes = ["https"]));
       this.app.use(
          "/docs",
          swaggerUI.serve,
