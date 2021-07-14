@@ -53,7 +53,7 @@ export default class Server {
       process.env.NODE_ENV != "production"
          ? ((documentacion.host = `localhost:${this.port}`),
            (documentacion.schemes = ["http"]))
-         : ((documentacion.host = `https://zapateria-ts-daniel.herokuapp.com`),
+         : ((documentacion.host = `zapateria-ts-daniel.herokuapp.com`),
            (documentacion.schemes = ["https"]));
       this.app.use(
          "/docs",
