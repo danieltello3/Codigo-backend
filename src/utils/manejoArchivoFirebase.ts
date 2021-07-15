@@ -1,10 +1,16 @@
 import { Storage } from "@google-cloud/storage";
 import { Express } from "express";
 //creo la instancia de la clase Storage con la configuracion de las credenciales y el id del proyecto
+import dotenv from "dotenv";
+dotenv.config();
 
 const storage = new Storage({
    projectId: "zapateria-codigo-daniel",
-   keyFilename: "./credenciales_firebase.json",
+   //keyFilename: "./credenciales_firebase.json",
+   credentials: {
+      client_email: process.env.CLIENT_EMAIL_FIREBASE,
+      private_key: process.env.PRIVATE_KEY_FIREBASE?.replace(/\\n/gm, "\n"),
+   },
 });
 
 //Enlazo mi bucket (donde se almacenaran todas las imagenes)
