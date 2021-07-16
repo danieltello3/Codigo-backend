@@ -10,6 +10,11 @@ const detalleSchema = new Schema({
       alias: "precio",
       required: true,
    },
+   productoId: {
+      type: Schema.Types.ObjectId,
+      alias: "producto_id",
+      required: true,
+   },
 });
 
 const pasarelaSchema = new Schema({
