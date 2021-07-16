@@ -2,6 +2,7 @@ import express, { Response, Request, NextFunction } from "express";
 import { json } from "body-parser";
 import { connect } from "mongoose";
 import dotenv from "dotenv";
+import { productoRouter } from "../producto/producto.routes";
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ export default class Server {
    }
 
    bodyParser() {
-      this.app.use(json);
+      this.app.use(json());
    }
 
    rutas() {
@@ -27,6 +28,7 @@ export default class Server {
             success: true,
          });
       });
+      this.app.use("/api", productoRouter);
    }
 
    CORS() {
@@ -46,7 +48,9 @@ export default class Server {
 
    start() {
       this.app.listen(this.port, async () => {
-         console.log("Servidor corriendo exitosamente");
+         console.log(
+            `Servidor corriendo exitosamente en el puerto ${this.port}`
+         );
          try {
             process.env.MONGO_URL &&
                (await connect(process.env.MONGO_URL, {

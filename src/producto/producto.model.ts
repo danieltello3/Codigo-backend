@@ -22,6 +22,9 @@ const productoSchema = new Schema({
       alias: "tipo",
       enum: ["LATTES", "COMIDA", "MERCHANDISING", "FRAPPS"],
    },
+   detalles: {
+      type: [Schema.Types.ObjectId],
+   },
 });
 
 export const Producto = model("productos", productoSchema);
