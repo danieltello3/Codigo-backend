@@ -3,6 +3,8 @@ import { json } from "body-parser";
 import { connect } from "mongoose";
 import dotenv from "dotenv";
 import { productoRouter } from "../producto/producto.routes";
+import { usuarioRouter } from "../usuario/usuario.routes";
+import morgan from "morgan";
 
 dotenv.config();
 
@@ -20,6 +22,7 @@ export default class Server {
 
    bodyParser() {
       this.app.use(json());
+      this.app.use(morgan("dev"));
    }
 
    rutas() {
@@ -28,7 +31,7 @@ export default class Server {
             success: true,
          });
       });
-      this.app.use("/api", productoRouter);
+      this.app.use("/api", productoRouter, usuarioRouter);
    }
 
    CORS() {
@@ -56,6 +59,8 @@ export default class Server {
                (await connect(process.env.MONGO_URL, {
                   useNewUrlParser: true,
                   useUnifiedTopology: true,
+                  useFindAndModify: false,
+                  useCreateIndex: true,
                }));
 
             console.log("Base de datos sincronizada correctamente");
