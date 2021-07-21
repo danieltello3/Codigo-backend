@@ -1,6 +1,24 @@
 import { Schema, model } from "mongoose";
 
-const detalleSchema = new Schema({
+interface IDetalle {
+   detalleCantidad: number;
+   detallePrecio: number;
+   productoId: string;
+}
+
+interface IPasarela {
+   pagador?: string;
+}
+
+interface IMovimiento {
+   movimientoFecha?: Date;
+   movimientoTipo: string;
+   usuarioId: string;
+   vendedorId: string;
+   movimientoDetalles: Array<IDetalle>;
+   movimientoPasarela?: IPasarela;
+}
+const detalleSchema = new Schema<IDetalle>({
    detalleCantidad: {
       types: Schema.Types.Number,
       alias: "cantidad",
@@ -17,14 +35,14 @@ const detalleSchema = new Schema({
    },
 });
 
-const pasarelaSchema = new Schema({
+const pasarelaSchema = new Schema<IPasarela>({
    pagador: {
       type: Schema.Types.String,
       alias: "payer",
    },
 });
 
-const movimientoSchema = new Schema({
+const movimientoSchema = new Schema<IMovimiento>({
    movimientoFecha: {
       type: Schema.Types.Date,
       alias: "fecha",
@@ -49,6 +67,7 @@ const movimientoSchema = new Schema({
    movimientoDetalles: {
       type: [detalleSchema],
       alias: "detalles",
+      required: true,
    },
    movimientoPasarela: {
       type: pasarelaSchema,
@@ -56,4 +75,4 @@ const movimientoSchema = new Schema({
    },
 });
 
-export const Movimiento = model("detalles", movimientoSchema);
+export const Movimiento = model<IMovimiento>("detalles", movimientoSchema);

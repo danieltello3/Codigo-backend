@@ -75,16 +75,24 @@ export const registroDto = async (
       data.usuarioNombre = userApi?.data?.nombres;
       data.usuarioApellido = `${userApi?.data?.apellido_paterno} ${userApi?.data?.apellido_materno}`;
 
-      if (data.usuarioTipo == tipoUsuario.PERSONAL) {
+      if (data.usuarioTipo == tipoUsuario.PERSONAL && data?.usuarioPassword) {
          next();
       } else {
-         if (data.usuarioDireccion && data.usuarioTelefono) {
-            next();
+         if (data.usuarioTipo === tipoUsuario.CLIENTE) {
+            if (data.usuarioDireccion && data.usuarioTelefono) {
+               next();
+            } else {
+               return res.status(400).json({
+                  success: false,
+                  content: null,
+                  message: "Error al crear al cliente, faltan campos",
+               });
+            }
          } else {
             return res.status(400).json({
                success: false,
                content: null,
-               message: "Error al crear al cliente, faltan campos",
+               message: "Error al crear el personal, faltan campos",
             });
          }
       }

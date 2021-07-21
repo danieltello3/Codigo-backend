@@ -9,10 +9,11 @@ export const registro = async (req: Request, res: Response) => {
    console.log(req.body);
    try {
       const nuevoUsuario = await Usuario.create(req.body);
-      delete nuevoUsuario._doc["usuarioPassword"];
+      const data = nuevoUsuario.toJSON();
+      delete data["usuarioPassword"];
       return res.json({
          success: true,
-         content: nuevoUsuario,
+         content: data,
          message: "Usuario creado exitosamente",
       });
    } catch (error) {
@@ -32,15 +33,15 @@ export const login = async (req: Request, res: Response) => {
          "usuarioPassword usuarioTipo"
       );
       console.log(usuario);
-      // if (!usuario || usuario.usuarioTipo === "CLIENTE") {
-      //    return res.status(404).json({
-      //       success: false,
-      //       message: "credenciales invalidas",
-      //       content: null,
-      //    });
-      // }
+      if (!usuario || usuario.usuarioTipo === "CLIENTE") {
+         return res.status(404).json({
+            success: false,
+            message: "credenciales invalidas",
+            content: null,
+         });
+      }
 
-      const resultado = compareSync(password, usuario.usuarioPassword);
+      const resultado = compareSync(password, usuario.usuarioPassword ?? "");
       if (resultado) {
          //generamos JWT
          const payload = {
