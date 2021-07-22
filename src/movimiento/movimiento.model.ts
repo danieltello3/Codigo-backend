@@ -10,7 +10,7 @@ interface IPasarela {
    pagador?: string;
 }
 
-interface IMovimiento {
+export interface IMovimiento {
    movimientoFecha?: Date;
    movimientoTipo: string;
    usuarioId: string;
@@ -18,29 +18,35 @@ interface IMovimiento {
    movimientoDetalles: Array<IDetalle>;
    movimientoPasarela?: IPasarela;
 }
-const detalleSchema = new Schema<IDetalle>({
-   detalleCantidad: {
-      types: Schema.Types.Number,
-      alias: "cantidad",
+const detalleSchema = new Schema<IDetalle>(
+   {
+      detalleCantidad: {
+         type: Schema.Types.Number,
+         alias: "cantidad",
+      },
+      detallePrecio: {
+         type: Schema.Types.Decimal128,
+         alias: "precio",
+         required: true,
+      },
+      productoId: {
+         type: Schema.Types.ObjectId,
+         alias: "producto_id",
+         required: true,
+      },
    },
-   detallePrecio: {
-      type: Schema.Types.Decimal128,
-      alias: "precio",
-      required: true,
-   },
-   productoId: {
-      type: Schema.Types.ObjectId,
-      alias: "producto_id",
-      required: true,
-   },
-});
+   { _id: false }
+);
 
-const pasarelaSchema = new Schema<IPasarela>({
-   pagador: {
-      type: Schema.Types.String,
-      alias: "payer",
+const pasarelaSchema = new Schema<IPasarela>(
+   {
+      pagador: {
+         type: Schema.Types.String,
+         alias: "payer",
+      },
    },
-});
+   { _id: false }
+);
 
 const movimientoSchema = new Schema<IMovimiento>({
    movimientoFecha: {

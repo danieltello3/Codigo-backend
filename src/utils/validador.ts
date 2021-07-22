@@ -45,3 +45,19 @@ export const authValidator = async (
       });
    }
 };
+
+export const personalValidator = async (
+   req: RequestUser,
+   res: Response,
+   next: NextFunction
+) => {
+   if (req.user?.usuarioTipo === "PERSONAL") {
+      next();
+   } else {
+      return res.status(401).json({
+         success: false,
+         content: null,
+         message: "Usuario no dispone de privilegios suficientes",
+      });
+   }
+};
