@@ -4,7 +4,7 @@ import { hashSync } from "bcrypt";
 interface IDireccion {
    zip?: string;
    calle?: string;
-   numero?: string;
+   numero?: number;
 }
 
 interface IUsuario {

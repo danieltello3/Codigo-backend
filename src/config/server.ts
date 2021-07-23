@@ -1,10 +1,10 @@
 import express, { Response, Request, NextFunction } from "express";
 import { json } from "body-parser";
 import { connect } from "mongoose";
+import morgan from "morgan";
 import dotenv from "dotenv";
 import { productoRouter } from "../producto/producto.routes";
 import { usuarioRouter } from "../usuario/usuario.routes";
-import morgan from "morgan";
 import { imagenRouter } from "../imagen/imagen.routes";
 import { movimientoRouter } from "../movimiento/movimiento.routes";
 
@@ -67,8 +67,8 @@ export default class Server {
             `Servidor corriendo exitosamente en el puerto ${this.port}`
          );
          try {
-            process.env.MONGO_URL &&
-               (await connect(process.env.MONGO_URL, {
+            process.env.MONGO_URL_PROD &&
+               (await connect(process.env.MONGO_URL_PROD, {
                   useNewUrlParser: true,
                   useUnifiedTopology: true,
                   useFindAndModify: false,

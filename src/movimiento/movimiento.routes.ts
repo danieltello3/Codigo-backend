@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { authValidator, personalValidator } from "../utils/validador";
-import { crearMovimiento, crearPreferencia } from "./movimiento.controller";
+import {
+   crearMovimiento,
+   crearPreferencia,
+   mpEventos,
+} from "./movimiento.controller";
 
 export const movimientoRouter = Router();
 
@@ -11,3 +15,5 @@ movimientoRouter.post(
    personalValidator,
    crearPreferencia
 );
+
+movimientoRouter.post("/mercadopago-ipn", mpEventos);
