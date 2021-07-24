@@ -192,15 +192,19 @@ export const mpEventos = async (req: Request, res: Response) => {
    // console.log("---------------------------------------------------");
    // console.log("QUERY PARAMS:");
    // console.log(req.query);
-   const { id, type } = req.query;
+   const { id, topic } = req.query;
    console.log(id);
-   const response = await fetch(
-      `https://api.mercadopago.com/v1/payments/${id}`,
-      {
-         headers: { Authorization: process.env.ACCESS_TOKEN_MP ?? "" },
-      }
-   );
-   const json = await response.json();
-   console.log(json);
+   if (topic === "payment") {
+      console.log("=====================================");
+      const response = await fetch(
+         `https://api.mercadopago.com/v1/payments/${id}`,
+         {
+            headers: { Authorization: process.env.ACCESS_TOKEN_MP ?? "" },
+         }
+      );
+      const json = await response.json();
+      console.log(json.status);
+   }
+
    return res.status(200).json({});
 };
