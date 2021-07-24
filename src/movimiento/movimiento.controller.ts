@@ -122,13 +122,16 @@ export const crearPreferencia = async (req: RequestUser, res: Response) => {
    const { movimientoId } = req.body;
    try {
       const movimiento = await Movimiento.findById(movimientoId);
+
       if (!movimiento) {
          throw new Error(`El movimiento ${movimientoId} no existe`);
       }
+
       const usuario = await Usuario.findById(movimiento.usuarioId);
       if (!usuario) {
          throw new Error("Usuario no encontrado");
       }
+
       payload.payer = {
          name: usuario.usuarioNombre,
          surname: usuario.usuarioApellido,
@@ -166,11 +169,12 @@ export const crearPreferencia = async (req: RequestUser, res: Response) => {
             }
          })
       );
+
       payload.items = items;
       const preferencia = await preferences.create(payload);
-      console.log(preferencia);
 
-      movimiento.movimientoPasarela.collectorId = preferencia.body.collector_id;
+      movimiento.movimientoPasarela.collectorId =
+         preferencia.response.collector_id;
       await movimiento.save();
 
       return res.json({
@@ -244,4 +248,13 @@ export const mpEventos = async (req: Request, res: Response) => {
    }
 
    return res.status(200).json({});
+};
+
+export const listarMovimientos = async (req: Request, res: Response) => {
+   const movimientos = await Movimiento.find();
+   return res.json({
+      success: true,
+      content: movimientos,
+      message: null,
+   });
 };
