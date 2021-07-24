@@ -202,16 +202,16 @@ export const mpEventos = async (req: Request, res: Response) => {
       });
 
       console.log("Aqui se muestra pago");
-      console.log(pago);
+      console.log(pago.body.status);
       console.log("Aqui se muestra el fetch");
-      const response = await fetch(
-         `https://api.mercadopago.com/v1/payments/${id}`,
-         {
-            headers: { Authorization: `Bearer ${process.env.ACCESS_TOKEN_MP}` },
-         }
-      );
-      const json = await response.json();
-      console.log(json.status);
+      // const response = await fetch(
+      //    `https://api.mercadopago.com/v1/payments/${id}`,
+      //    {
+      //       headers: { Authorization: `Bearer ${process.env.ACCESS_TOKEN_MP}` },
+      //    }
+      // );
+      // const json = await response.json();
+      // console.log(json.status);
    }
 
    return res.status(200).json({});
