@@ -58,7 +58,7 @@ app.get("/detail", async function (req, res) {
          title: req.query.title,
          unit_price: Number(req.query.price),
          quantity: Number(req.query.unit),
-         description: "Dispositivo movil de Tienda e-commerce",
+         description: "Dispositivo móvil de Tienda e-commerce",
       },
    ];
 
