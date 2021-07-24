@@ -170,8 +170,7 @@ export const crearPreferencia = async (req: RequestUser, res: Response) => {
       const preferencia = await preferences.create(payload);
       console.log(preferencia);
 
-      movimiento.movimientoPasarela.collectorId =
-         preferencia.response.collector_id;
+      movimiento.movimientoPasarela.collectorId = preferencia.body.collector_id;
       await movimiento.save();
 
       return res.json({
