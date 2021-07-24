@@ -12,8 +12,8 @@ const verificarToken = (token: string): JwtPayload | string => {
    try {
       const payload = verify(token, String(process.env.JWT_SECRET));
       return payload;
-   } catch (error) {
-      return error;
+   } catch (error: any) {
+      return error.message;
    }
 };
 
