@@ -51,7 +51,6 @@ app.get("/", function (req, res) {
 });
 
 app.get("/detail", async function (req, res) {
-   // console.log(req.query);
    const items = [
       {
          id: 1234,
@@ -62,8 +61,6 @@ app.get("/detail", async function (req, res) {
          description: "Dispositivo movil de Tienda e-commerce",
       },
    ];
-
-   // console.log(items);
 
    const back_urls = {
       success: process.env.SUCCESS_URL,
@@ -80,7 +77,6 @@ app.get("/detail", async function (req, res) {
       auto_return: "approved",
    };
    const resultado = await mercadopago.preferences.create(preferencia);
-   console.log(resultado);
    res.render("detail", {
       ...req.query,
       init_point: resultado.body.init_point,
