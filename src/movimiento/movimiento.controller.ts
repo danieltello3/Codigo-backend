@@ -9,6 +9,7 @@ import {
    PreferenceItem,
 } from "mercadopago/models/preferences/create-payload.model";
 import { Usuario } from "../usuario/usuario.model";
+import fetch from "node-fetch";
 dotenv.config();
 
 interface ILMovimiento extends Omit<IMovimiento, "vendedorId"> {}
@@ -184,13 +185,21 @@ export const crearPreferencia = async (req: RequestUser, res: Response) => {
    }
 };
 
-export const mpEventos = (req: Request, res: Response) => {
+export const mpEventos = async (req: Request, res: Response) => {
    console.log("---------------------------------------------------");
-   console.log("BODY: ");
-   console.log(req.body);
-   console.log("---------------------------------------------------");
-   console.log("QUERY PARAMS:");
-   console.log(req.query);
-
+   // console.log("BODY: ");
+   // console.log(req.body);
+   // console.log("---------------------------------------------------");
+   // console.log("QUERY PARAMS:");
+   // console.log(req.query);
+   const { id, type } = req.query;
+   const response = await fetch(
+      `https://api.mercadopago.com/v1/payments/${id}`,
+      {
+         headers: { Authorization: process.env.ACCESS_TOKEN_MP ?? "" },
+      }
+   );
+   const json = await response.json();
+   console.log(json);
    return res.status(200).json({});
 };
