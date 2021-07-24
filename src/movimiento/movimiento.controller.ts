@@ -193,6 +193,7 @@ export const mpEventos = async (req: Request, res: Response) => {
    // console.log("QUERY PARAMS:");
    // console.log(req.query);
    const { id, type } = req.query;
+   console.log(id);
    const response = await fetch(
       `https://api.mercadopago.com/v1/payments/${id}`,
       {
