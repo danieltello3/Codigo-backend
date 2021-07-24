@@ -1,4 +1,5 @@
 var express = require("express");
+var { json } = require("express");
 var exphbs = require("express-handlebars");
 var mercadopago = require("mercadopago");
 var port = process.env.PORT || 3000;
@@ -40,7 +41,7 @@ const payment_methods = {
 
 app.engine("handlebars", exphbs());
 app.set("view engine", "handlebars");
-
+app.use(json());
 app.use(express.static("assets"));
 
 app.use("/assets", express.static(__dirname + "/assets"));
@@ -96,7 +97,7 @@ app.get("/failure", (req, res) => {
    res.render("failure", req.query);
 });
 
-app.post("ipn-mp", (req, res) => {
+app.post("/ipn-mp", (req, res) => {
    console.log("-----QUERY------");
    console.log(req.query);
    console.log("-----BODY------");
