@@ -42,6 +42,7 @@ export const crearMovimiento = async (req: RequestUser, res: Response) => {
          movimientoDetalles,
          usuarioId,
          vendedorId: vendedor,
+         movimientoPasarela: {},
       };
 
       const nuevoMovimiento = await Movimiento.create(movimiento);
@@ -169,6 +170,10 @@ export const crearPreferencia = async (req: RequestUser, res: Response) => {
       const preferencia = await preferences.create(payload);
       console.log(preferencia);
 
+      movimiento.movimientoPasarela.collectorId =
+         preferencia.response.collector_id;
+      await movimiento.save();
+
       return res.json({
          success: true,
          content: preferencia.response.init_point,
@@ -186,7 +191,6 @@ export const crearPreferencia = async (req: RequestUser, res: Response) => {
 };
 
 export const mpEventos = async (req: Request, res: Response) => {
-   console.log("---------------------------------------------------");
    // console.log("BODY: ");
    // console.log(req.body);
    // console.log("---------------------------------------------------");
@@ -202,8 +206,34 @@ export const mpEventos = async (req: Request, res: Response) => {
       });
 
       console.log("Aqui se muestra pago");
-      console.log(pago.body.status);
-      console.log("Aqui se muestra el fetch");
+
+      const {
+         payment_method_id,
+         payment_type_id,
+         status,
+         status_detail,
+         collector_id,
+      } = pago.body;
+      const movimiento = await Movimiento.findOne({
+         "movimientoPasarela.collectorId": collector_id,
+      });
+      let first_six_digits;
+      if (
+         payment_type_id === "credit_card" ||
+         payment_type_id === "debit_card"
+      ) {
+         first_six_digits = pago.body.card.first_six_digits;
+      }
+      if (movimiento) {
+         movimiento.movimientoPasarela.paymentMethodId = payment_method_id;
+         movimiento.movimientoPasarela.paymentTypeId = payment_type_id;
+         movimiento.movimientoPasarela.status = status;
+         movimiento.movimientoPasarela.statusDetail = status_detail;
+         movimiento.movimientoPasarela.firstSixDigits = first_six_digits;
+         await movimiento.save();
+      }
+
+      //console.log("Aqui se muestra el fetch");
       // const response = await fetch(
       //    `https://api.mercadopago.com/v1/payments/${id}`,
       //    {
