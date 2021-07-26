@@ -61,7 +61,6 @@ app.get("/detail", async function (req, res) {
          unit_price: Number(req.query.price),
       },
    ];
-   console.log(req.get("host"));
 
    const back_urls = {
       success: process.env.SUCCESS_URL,
@@ -78,7 +77,7 @@ app.get("/detail", async function (req, res) {
       auto_return: "approved",
    };
    const resultado = await mercadopago.preferences.create(preferencia);
-   console.log(resultado.body.items);
+
    res.render("detail", {
       ...req.query,
       init_point: resultado.body.init_point,
