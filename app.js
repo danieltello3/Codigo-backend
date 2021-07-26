@@ -54,7 +54,7 @@ app.get("/detail", async function (req, res) {
    const items = [
       {
          id: "1234",
-         picture_url: req.get("host") + req.query.img.slice(1),
+         picture_url: `https://${req.get("host")}${req.query.img.slice(1)}`,
          title: req.query.title,
          description: "Dispositivo movil de Tienda e-commerce",
          quantity: Number(req.query.unit),
