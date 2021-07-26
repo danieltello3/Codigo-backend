@@ -99,6 +99,7 @@ app.post("/ipn-mp", (req, res) => {
    console.log(req.query);
    console.log("-----BODY------");
    console.log(req.body);
+   console.log(req.body.items);
    res.status(200).json({});
 });
 
