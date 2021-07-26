@@ -53,7 +53,7 @@ app.get("/", function (req, res) {
 app.get("/detail", async function (req, res) {
    const items = [
       {
-         id: 1234,
+         id: "1234",
          picture_url: req.get("host") + req.query.img.slice(1),
          title: req.query.title,
          unit_price: Number(req.query.price),
@@ -77,6 +77,7 @@ app.get("/detail", async function (req, res) {
       auto_return: "approved",
    };
    const resultado = await mercadopago.preferences.create(preferencia);
+   console.log(resultado.body.items);
    res.render("detail", {
       ...req.query,
       init_point: resultado.body.init_point,
