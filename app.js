@@ -56,11 +56,12 @@ app.get("/detail", async function (req, res) {
          id: "1234",
          picture_url: req.get("host") + req.query.img.slice(1),
          title: req.query.title,
-         unit_price: Number(req.query.price),
+         description: "Dispositivo movil de Tienda e-commerce",
          quantity: Number(req.query.unit),
-         description: "Dispositivo móvil de Tienda e-commerce",
+         unit_price: Number(req.query.price),
       },
    ];
+   console.log(req.get("host"));
 
    const back_urls = {
       success: process.env.SUCCESS_URL,
