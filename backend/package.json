@@ -6,7 +6,9 @@
    "author": "Daniel Tello",
    "license": "MIT",
    "scripts": {
-      "start:dev": "nodemon src/index.ts"
+      "start:dev": "nodemon src/index.ts",
+      "build": "tsc -p .",
+      "start": "node dist/index.js"
    },
    "dependencies": {
       "express": "^4.17.1",
